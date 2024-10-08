@@ -4,9 +4,7 @@ import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/app/redux";
 import { setIsDarkMode, setIsSidebarCollapse } from "@/state";
 
-type Props = {};
-
-const Navbar = (props: Props) => {
+const Navbar = () => {
   const dispatch = useAppDispatch();
   const isSidebarCollapsed = useAppSelector(
     (state) => state.global.isSidebarCollapse,

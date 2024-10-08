@@ -1,7 +1,7 @@
 import React from "react";
 
 type headerProps = {
-  name: String;
+  name: string;
   buttonComponent?: React.ReactNode;
   isSmallText?: boolean;
 };

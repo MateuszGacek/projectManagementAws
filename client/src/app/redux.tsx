@@ -1,3 +1,5 @@
+// ./src/app/redux.tsx
+
 import { useRef } from "react";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
@@ -26,13 +28,16 @@ import createWebStorage from "redux-persist/lib/storage/createWebStorage";
 /* REDUX PERSISTENCE */
 const createNoopStorage = () => {
   return {
-    getItem(_key: any) {
+    getItem(_key: string): Promise<string | null> {
+      console.log(_key);
       return Promise.resolve(null);
     },
-    setItem(_key: any, value: any) {
-      return Promise.resolve(value);
+    setItem(_key: string, value: string): Promise<void> {
+      console.log(_key, value);
+      return Promise.resolve();
     },
-    removeItem(_key: any) {
+    removeItem(_key: string): Promise<void> {
+      console.log(_key);
       return Promise.resolve();
     },
   };

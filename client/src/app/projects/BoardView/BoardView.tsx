@@ -1,3 +1,5 @@
+// ./src/app/projects/BoardView/BoardView.tsx
+
 import React from "react";
 import {
   useGetTaskQuery,
@@ -5,7 +7,13 @@ import {
   Status,
   Task as TaskType,
 } from "@/state/api";
-import { DndProvider, useDrag, useDrop } from "react-dnd";
+import {
+  DndProvider,
+  useDrag,
+  useDrop,
+  DropTargetMonitor,
+  DragSourceMonitor,
+} from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { EllipsisVertical, MessageSquareMore, Plus } from "lucide-react";
 import { format } from "date-fns";
@@ -69,33 +77,37 @@ const TaskColumn = ({
   moveTask,
   setIsModalNewTaskOpen,
 }: TaskColumnProps) => {
-  const [{ isDraggingOver }, setIsDraggingOver] = useDrop(() => ({
+  const [{ isDraggingOver }, drop] = useDrop<
+    { id: number },
+    void,
+    { isDraggingOver: boolean }
+  >({
     accept: "task",
-    drop: (item: { id: number }) => moveTask(item.id, status),
-    collect: (monitor: any) => ({
+    drop: (item) => moveTask(item.id, status),
+    collect: (monitor: DropTargetMonitor) => ({
       isDraggingOver: !!monitor.isOver(),
     }),
-  }));
+  });
 
-  const tasksCount = tasks.filter((task) => task.status === status).length;
-
-  const statusColor: any = {
+  const statusColor: Record<Status, string> = {
     [Status.ToDo]: "#2563EB",
     [Status.WorkInProgress]: "#059669",
     [Status.UnderReview]: "#D97706",
     [Status.Completed]: "#000000",
   };
 
+  const tasksCount = tasks.filter((task) => task.status === status).length;
+
   return (
     <div
       ref={(instance) => {
-        setIsDraggingOver(instance);
+        drop(instance);
       }}
       className={`sl:py-4 rounded-lg py-2 xl:px-2 ${isDraggingOver ? "bg-blue-100 dark:bg-neutral-950" : ""}`}
     >
       <div className="mb-3 flex w-full">
         <div
-          className={`w-2 !bg-[${statusColor[status]}] rounded-s-lg`}
+          className={`w-2 rounded-s-lg`}
           style={{ backgroundColor: statusColor[status] }}
         />
         <div className="flex w-full items-center justify-between rounded-e-lg bg-white px-5 py-4 dark:bg-dark-secondary">
@@ -136,13 +148,17 @@ type TaskProps = {
 };
 
 const Task = ({ task }: TaskProps) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag] = useDrag<
+    { id: number },
+    void,
+    { isDragging: boolean }
+  >({
     type: "task",
     item: { id: task.id },
-    collect: (monitor: any) => ({
+    collect: (monitor: DragSourceMonitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }));
+  });
 
   const taskTagsSplit = task.tags ? task.tags.split(",") : [];
 
@@ -172,6 +188,7 @@ const Task = ({ task }: TaskProps) => {
       {priority}
     </div>
   );
+
   return (
     <div
       ref={(instance) => {
@@ -200,7 +217,6 @@ const Task = ({ task }: TaskProps) => {
                   key={tag}
                   className="rounded-full bg-blue-100 px-2 py-1 text-xs"
                 >
-                  {" "}
                   {tag}
                 </div>
               ))}
